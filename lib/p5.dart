@@ -1,46 +1,45 @@
 // https://github.com/codeanticode/p5.dart/blob/master/lib/p5.dart
 
+import 'dart:math';
+import 'dart:typed_data';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
-import "dart:math";
-import "dart:ui";
-import "dart:typed_data";
 
 class PWidget extends StatelessWidget {
-  PPainter painter;
+  const PWidget({this.painter});
 
-  PWidget(PPainter p) {
-    painter = p;
-  }
+  final PPainter painter;
 
   @override
   Widget build(BuildContext context) {
 //    print("BUILDING WIDGET...");
 
 //    print(painter);
-    return new Container(
+    return Container(
       width: painter.fillParent ? null : painter.width.toDouble(),
       height: painter.fillParent ? null : painter.height.toDouble(),
       constraints: painter.fillParent ? BoxConstraints.expand() : null, //new
       margin: const EdgeInsets.all(0.0),
-      child: new ClipRect(
-          child: new CustomPaint(
+      child: ClipRect(
+          child: CustomPaint(
         painter: painter,
-        child: new GestureDetector(
+        child: GestureDetector(
           // The gesture detector needs to be declared here so it can
           // access the context from the CustomPaint, which allows to
           // transforms global positions into local positions relative
           // to the widget.
-          onTapDown: (details) {
+          onTapDown: (TapDownDetails details) {
             painter.onTapDown(context, details);
           },
-          onPanStart: (details) {
+          onPanStart: (DragStartDetails details) {
             painter.onDragStart(context, details);
           },
-          onPanUpdate: (details) {
+          onPanUpdate: (DragUpdateDetails details) {
             painter.onDragUpdate(context, details);
           },
-          onTapUp: (details) {
+          onTapUp: (TapUpDetails details) {
             painter.onTapUp(context, details);
           },
 //              onTapCancel: (details) {
@@ -49,7 +48,7 @@ class PWidget extends StatelessWidget {
 //              onPanCancel: (details) {
 //
 //              },
-          onPanEnd: (details) {
+          onPanEnd: (DragEndDetails details) {
             painter.onDragEnd(context, details);
           },
         ),
@@ -67,7 +66,7 @@ class PAnimator extends AnimationController {
   PAnimator(TickerProvider v)
       : super.unbounded(
             duration: const Duration(milliseconds: 2000), vsync: v) {
-    addStatusListener((status) {
+    addStatusListener((AnimationStatus status) {
       // Loop animation by reversing/forward when status changes.
       if (status == AnimationStatus.completed) {
         reverse();
@@ -83,22 +82,28 @@ class PAnimator extends AnimationController {
 }
 
 class PConstants {
-  static int OPEN = 0;
-  static int CLOSE = 1;
+  static const int OPEN = 0;
+  static const int CLOSE = 1;
 
-  static int LINES = 1;
-  static int POINTS = 2;
-  static int POLYGON = 3;
+  static const int LINES = 1;
+  static const int POINTS = 2;
+  static const int POLYGON = 3;
 
-  static final int SQUARE = 1 << 0; // called 'butt' in the svg spec
-  static final int ROUND = 1 << 1;
-  static final int PROJECT = 1 << 2; // called 'square' in the svg spec
+  static const int SQUARE = 1 << 0; // called 'butt' in the svg spec
+  static const int ROUND = 1 << 1;
+  static const int PROJECT = 1 << 2; // called 'square' in the svg spec
 
-  static final int MITER = 1 << 3;
-  static final int BEVEL = 1 << 5;
+  static const int MITER = 1 << 3;
+  static const int BEVEL = 1 << 5;
 }
 
 class PPainter extends ChangeNotifier implements CustomPainter {
+  PPainter() {
+    init();
+    setup();
+    redraw();
+  }
+
   bool fillParent = false;
   int width = 100;
   int height = 100;
@@ -119,16 +124,11 @@ class PPainter extends ChangeNotifier implements CustomPainter {
   bool useFill = true;
   bool useStroke = true;
 
-  var vertices = List<Offset>();
-  Path path = new Path();
-  var shapeMode = PConstants.POLYGON;
+  List<Offset> vertices = <Offset>[];
+  Path path = Path();
+  int shapeMode = PConstants.POLYGON;
 
-  PPainter() {
-    init();
-    setup();
-    redraw();
-  }
-
+  @override
   bool hitTest(Offset position) => null;
 
   @override
@@ -145,12 +145,12 @@ class PPainter extends ChangeNotifier implements CustomPainter {
       // Annotate a the entire P5 widget with the label "P5 Sketch".
       // When text to speech feature is enabled on the device, a user will be
       // able to locate the sun on this picture by touch.
-      var rect = Offset.zero & size;
+      Rect rect = Offset.zero & size;
       rect = const Alignment(0.0, 0.0).inscribe(size, rect);
-      return [
-        new CustomPainterSemantics(
+      return <CustomPainterSemantics>[
+        CustomPainterSemantics(
           rect: rect,
-          properties: new SemanticsProperties(
+          properties: const SemanticsProperties(
             label: 'P5 Sketch',
             textDirection: TextDirection.ltr,
           ),
@@ -286,7 +286,7 @@ class PPainter extends ChangeNotifier implements CustomPainter {
     }
   }
 
-  void strokeJoin(StrokeJoin join) {
+  void strokeJoin(int join) {
     if (join == PConstants.BEVEL) {
       strokePaint.strokeJoin = StrokeJoin.bevel;
     }
@@ -312,7 +312,7 @@ class PPainter extends ChangeNotifier implements CustomPainter {
   }
 
   void ellipse(num x, num y, num w, num h) {
-    final rect = new Offset(x - w / 2, y - h / 2) & new Size(w, h);
+    final Rect rect = Offset(x - w / 2, y - h / 2) & Size(w, h);
     if (useFill) {
       paintCanvas.drawOval(rect, fillPaint);
     }
@@ -323,13 +323,13 @@ class PPainter extends ChangeNotifier implements CustomPainter {
 
   void line(num x1, num y1, num x2, num y2) {
     if (useStroke) {
-      paintCanvas.drawLine(new Offset(x1, y1), new Offset(x2, y2), strokePaint);
+      paintCanvas.drawLine(Offset(x1, y1), Offset(x2, y2), strokePaint);
     }
   }
 
   void point(num x, num y) {
     if (useStroke) {
-      var points = [new Offset(x, y)];
+      final List<Offset> points = <Offset>[Offset(x, y)];
       paintCanvas.drawPoints(PointMode.points, points, strokePaint);
     }
   }
@@ -344,8 +344,8 @@ class PPainter extends ChangeNotifier implements CustomPainter {
   }
 
   void rect(num x, num y, num w, num h) {
-    final rect = new Offset(x.toDouble(), y.toDouble()) &
-        new Size(w.toDouble(), h.toDouble());
+    final Rect rect =
+        Offset(x.toDouble(), y.toDouble()) & Size(w.toDouble(), h.toDouble());
     if (useFill) {
       paintCanvas.drawRect(rect, fillPaint);
     }
@@ -372,14 +372,14 @@ class PPainter extends ChangeNotifier implements CustomPainter {
   }
 
   void endShape([int mode = 0]) {
-    if (0 < vertices.length) {
+    if (vertices.isNotEmpty) {
       if (shapeMode == PConstants.POINTS || shapeMode == PConstants.LINES) {
-        var vlist = List<double>();
-        for (var v in vertices) {
+        final List<double> vlist = <double>[];
+        for (Offset v in vertices) {
           vlist.add(v.dx);
           vlist.add(v.dy);
         }
-        var raw = Float32List.fromList(vlist);
+        final Float32List raw = Float32List.fromList(vlist);
         if (shapeMode == PConstants.POINTS) {
           paintCanvas.drawRawPoints(PointMode.points, raw, strokePaint);
         } else {
@@ -434,13 +434,9 @@ class PPainter extends ChangeNotifier implements CustomPainter {
 }
 
 class PVector {
+  PVector({this.x, this.y, this.z = 0.0});
+
   double x = 0.0;
   double y = 0.0;
   double z = 0.0;
-
-  PVector(double x, double y, [double z = 0.0]) {
-    this.x = x;
-    this.y = y;
-    this.z = z;
-  }
 }

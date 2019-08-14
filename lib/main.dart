@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-import "p5.dart";
-import "sketch.dart";
+import 'p5.dart';
+import 'sketch.dart';
 
-void main() => runApp(new MyApp());
+void main() => runApp(MyApp());
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  const MyHomePage({Key key, this.title}) : super(key: key);
   final String title;
   @override
   _MyHomePageState createState() {
-    return new _MyHomePageState();
+    return _MyHomePageState();
   }
 }
 
@@ -18,13 +18,13 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
+    return MaterialApp(
       title: 'P5 Demo',
-      theme: new ThemeData(
+      theme: ThemeData(
         // This is the theme of your application.
         primarySwatch: Colors.blue,
       ),
-      home: new MyHomePage(title: 'P5 Demo Home Page'),
+      home: const MyHomePage(title: 'P5 Demo Home Page'),
     );
   }
 }
@@ -37,10 +37,10 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   void initState() {
     super.initState();
-    sketch = new MySketch();
+    sketch = MySketch();
     // Need an animator to call the draw() method in the sketch continuously,
     // otherwise it will be called only when touch events are detected.
-    animator = new PAnimator(this);
+    animator = PAnimator(this);
     animator.addListener(() {
       setState(() {
         sketch.redraw();
@@ -51,11 +51,11 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(title: new Text("P5 Draw!")),
+    return Scaffold(
+      appBar: AppBar(title: const Text('P5 Draw!')),
       backgroundColor: const Color.fromRGBO(200, 200, 200, 1.0),
-      body: new Center(
-        child: new PWidget(sketch),
+      body: Center(
+        child: PWidget(painter: sketch),
       ),
     );
   }
