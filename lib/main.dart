@@ -58,6 +58,8 @@ rect(200, 200, 50, 50);
     _animator.run();
 
     _textController = TextEditingController(text: _text);
+
+    _parse();
   }
 
   @override
@@ -91,7 +93,7 @@ rect(200, 200, 50, 50);
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _run,
+        onPressed: _parse,
         child: Icon(Icons.play_arrow),
         backgroundColor: Colors.black,
       ),
@@ -104,7 +106,7 @@ rect(200, 200, 50, 50);
     super.dispose();
   }
 
-  void _run() {
+  void _parse() {
     final List<String> lines = _text
         .split(RegExp(r';\s*'))
         .where((String line) => line.isNotEmpty)

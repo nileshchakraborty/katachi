@@ -13,6 +13,14 @@ class MySketch extends PPainter {
 
   @override
   void draw() {
+    try {
+      parse();
+    } catch (e) {
+      print('error caught: $e');
+    }
+  }
+
+  void parse() {
     for (PCode code in codes) {
       switch (code.name) {
         case 'background':
@@ -50,7 +58,7 @@ class MySketch extends PPainter {
             double.parse(code.args[0].name),
             double.parse(code.args[1].name),
             double.parse(code.args[2].name),
-            double.parse(code.args[2].name),
+            double.parse(code.args[3].name),
           );
           break;
         case 'noStroke':
@@ -64,7 +72,7 @@ class MySketch extends PPainter {
             double.parse(code.args[0].name),
             double.parse(code.args[1].name),
             double.parse(code.args[2].name),
-            double.parse(code.args[2].name),
+            double.parse(code.args[3].name),
           );
           break;
 //strokeCap(int cap)
