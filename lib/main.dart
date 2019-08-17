@@ -65,7 +65,7 @@ rect(200, 200, 50, 50);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('P5 Draw!')),
+      appBar: AppBar(title: const Text('Katachi')),
       backgroundColor: const Color.fromRGBO(200, 200, 200, 1.0),
       body: Row(
         children: <Widget>[
