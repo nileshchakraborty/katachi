@@ -1,38 +1,91 @@
+import 'code.dart';
 import 'p5.dart';
 
 class MySketch extends PPainter {
-  List<List<PVector>> strokes = <List<PVector>>[];
+  MySketch({this.codes});
+
+  final List<PCode> codes;
 
   @override
   void setup() {
-//    size(300, 300);
     fullScreen();
   }
 
   @override
   void draw() {
-    background(color(255, 255, 255));
-
-    noFill();
-    strokeWeight(10);
-    stroke(color(10, 40, 200, 60));
-    for (List<PVector> stroke in strokes) {
-      beginShape();
-      for (PVector p in stroke) {
-        vertex(p.x, p.y);
+    for (PCode code in codes) {
+      switch (code.name) {
+        case 'background':
+          background(
+            color(
+              int.parse(code.args[0].args[0].name),
+              int.parse(code.args[0].args[1].name),
+              int.parse(code.args[0].args[2].name),
+            ),
+          );
+          break;
+        case 'stroke':
+          stroke(
+            color(
+              int.parse(code.args[0].args[0].name),
+              int.parse(code.args[0].args[1].name),
+              int.parse(code.args[0].args[2].name),
+            ),
+          );
+          break;
+        case 'fill':
+          fill(
+            color(
+              int.parse(code.args[0].args[0].name),
+              int.parse(code.args[0].args[1].name),
+              int.parse(code.args[0].args[2].name),
+            ),
+          );
+          break;
+        case 'strokeWeight':
+          strokeWeight(int.parse(code.args[0].name));
+          break;
+        case 'ellipse':
+          ellipse(
+            double.parse(code.args[0].name),
+            double.parse(code.args[1].name),
+            double.parse(code.args[2].name),
+            double.parse(code.args[2].name),
+          );
+          break;
+        case 'noStroke':
+          noStroke();
+          break;
+        case 'noFill':
+          noFill();
+          break;
+        case 'rect':
+          rect(
+            double.parse(code.args[0].name),
+            double.parse(code.args[1].name),
+            double.parse(code.args[2].name),
+            double.parse(code.args[2].name),
+          );
+          break;
+//strokeCap(int cap)
+//strokeJoin(int join)
+//line(num x1, num y1, num x2, num y2)
+//point(num x, num y)
+//quad(num x1, num y1, num x2, num y2, num x3, num y3, num x4, num y4)
+//triangle(num x1, num y1, num x2, num y2, num x3, num y3)
+//beginShape([int mode = 3])
+//vertex(num x, num y)
+//endShape([int mode = 0])
+//translate(num tx, num ty)
+//rotate(num angle)
+//scale(num sx, num sy)
+//push()
+//pop()
+//radians(num angle)
+//degrees(num angle)
+        case '':
+          break;
       }
-      endShape();
     }
-  }
-
-  @override
-  void mousePressed() {
-    strokes.add(<PVector>[PVector(x: mouseX, y: mouseY)]);
-  }
-
-  @override
-  void mouseDragged() {
-    final List<PVector> stroke = strokes.last;
-    stroke.add(PVector(x: mouseX, y: mouseY));
   }
 }

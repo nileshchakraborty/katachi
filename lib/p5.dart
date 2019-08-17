@@ -311,7 +311,7 @@ class PPainter extends ChangeNotifier implements CustomPainter {
     useFill = false;
   }
 
-  void ellipse(num x, num y, num w, num h) {
+  void ellipse(double x, double y, double w, double h) {
     final Rect rect = Offset(x - w / 2, y - h / 2) & Size(w, h);
     if (useFill) {
       paintCanvas.drawOval(rect, fillPaint);
